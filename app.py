@@ -1,6 +1,10 @@
 import os
 import time
 import requests
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def make_request_with_retries(url, headers, method="GET", data=None, max_retries=3, delay=5):
     """
@@ -16,9 +20,14 @@ def make_request_with_retries(url, headers, method="GET", data=None, max_retries
                 raise ValueError("Unsupported HTTP method")
 
             if response.status_code == 200:
-                return response.json()
+                #  check Content-Length
+                if response.headers.get('Content-Length') != '0':
+                    return response.json()
+                else:
+                    return True
             else:
                 print(f"Attempt {attempt}: Server returned status {response.status_code}")
+                return False
         except (requests.RequestException, ValueError) as e:
             print(f"Attempt {attempt}: Request failed with error: {e}")
         except Exception as e:

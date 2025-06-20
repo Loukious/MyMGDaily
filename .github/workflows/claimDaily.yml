@@ -24,20 +24,23 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run Python script
+      id: run_script
       env:
         REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
       run: |
         python app.py
 
-    - name: Authenticate GitHub CLI
+    - name: Mask secret value
       env:
-        GH_TOKEN: ${{ secrets.PAT }}
-      run: gh auth setup-git
-
-    - name: Update GitHub secret using GH CLI
-      env:
-        NEW_REFRESH_TOKEN: ${{ env.NEW_REFRESH_TOKEN }}
-        REPO: ${{ github.repository }}
+        SECRET: ${{ steps.run_script.outputs.NEW_REFRESH_TOKEN }}
       run: |
-        echo "::add-mask::$NEW_REFRESH_TOKEN"
-        echo "$NEW_REFRESH_TOKEN" | gh secret set REFRESH_TOKEN --repo "$REPO" --app actions
+        echo "::add-mask::$SECRET"
+
+    - name: Update refresh token secret
+      uses: punitkashyup/action-secrets-update@v1.0.6
+      with:
+        repository_owner: ${{ github.repository_owner }}
+        repository_name: ${{ github.event.repository.name }}
+        secret_name: NEW_REFRESH_TOKEN
+        new_secret_value: ${{ steps.run_script.outputs.NEW_REFRESH_TOKEN }}
+        github_token: ${{ secrets.PAT }}

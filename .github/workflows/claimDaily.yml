@@ -32,7 +32,7 @@ jobs:
 
     - name: Mask secret value
       env:
-        SECRET: ${{ steps.run_script.outputs.NEW_REFRESH_TOKEN }}
+        SECRET: ${{ steps.run_script.outputs.REFRESH_TOKEN }}
       run: |
         echo "::add-mask::$SECRET"
 
@@ -41,6 +41,6 @@ jobs:
       with:
         repository_owner: ${{ github.repository_owner }}
         repository_name: ${{ github.event.repository.name }}
-        secret_name: NEW_REFRESH_TOKEN
-        new_secret_value: ${{ steps.run_script.outputs.NEW_REFRESH_TOKEN }}
+        secret_name: REFRESH_TOKEN
+        new_secret_value: ${{ steps.run_script.outputs.REFRESH_TOKEN }}
         github_token: ${{ secrets.PAT }}

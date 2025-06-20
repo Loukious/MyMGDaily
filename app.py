@@ -18,7 +18,7 @@ def get_access_token():
     }
 
     response = requests.post(url, headers=headers, json=data).json()
-    print(f"::set-output name=NEW_REFRESH_TOKEN::{response["data"]["refresh_token"]}")
+    print(f"::set-output name=REFRESH_TOKEN::{response["data"]["refresh_token"]}")
     return response["data"]["access_token"]
 
 def make_request_with_retries(url, headers, method="GET", data=None, max_retries=3, delay=5):

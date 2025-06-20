@@ -61,6 +61,29 @@ def claim_reward(level_index, game_id):
     }
     return make_request_with_retries(url, headers, method="POST", data=payload)
 
+def reveal_box():
+    url = "https://backend.mymg.tn/v2/game/reveal-box"
+    headers = {
+        "User-Agent": "okhttp/4.12.0",
+        "authorization": "Bearer " + os.environ.get("TOKEN"),
+        "Content-Type": "application/json"
+    }
+    r = requests.post(url, headers=headers).json()
+    print(f"{r.get("data", {}).get("result", {}).get("value", 0)} coins revealed in the box.")
+
+def do_wheel():
+    url = "https://backend.mymg.tn/v2/game/winner-for-wheel-item"
+    headers = {
+        "User-Agent": "okhttp/4.12.0",
+        "authorization": "Bearer " + os.environ.get("TOKEN"),
+        "Content-Type": "application/json"
+    }
+    data = {
+        "wheelItemId": 3
+    }
+    r = requests.post(url, headers=headers, json=data)
+    print("Successfully did the wheel." if r.status_code == 200 else "Failed to do the wheel.")
+
 def main():
     # Step 1: Fetch all games and levels
     games = get_games()
@@ -78,6 +101,8 @@ def main():
             print(f"Successfully claimed reward: {response}")
         else:
             print(f"Failed to claim reward for Game ID {game_id}, Level Index {level_index}")
+    reveal_box()
+    do_wheel()
 
 # Run the main function
 if __name__ == "__main__":

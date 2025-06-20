@@ -19,8 +19,8 @@ def get_access_token():
 
     response = requests.post(url, headers=headers, json=data).json()
     with open(os.environ["GITHUB_ENV"], "a") as f:
-        f.write(f"NEW_REFRESH_TOKEN={response["refresh_token"]}\n")
-    return response["access_token"]
+        f.write(f"NEW_REFRESH_TOKEN={response["data"]["refresh_token"]}\n")
+    return response["data"]["access_token"]
 
 def make_request_with_retries(url, headers, method="GET", data=None, max_retries=3, delay=5):
     """

@@ -29,11 +29,15 @@ jobs:
       run: |
         python app.py
 
-    - name: Update refresh token secret
-      uses: punitkashyup/action-secrets-update@v1.0.6
-      with:
-        repository_owner: ${{ github.repository_owner }}
-        repository_name: ${{ github.event.repository.name }}
-        secret_name: REFRESH_TOKEN
-        new_secret_value: ${{ env.NEW_REFRESH_TOKEN }}
-        github_token: ${{ secrets.PAT }}
+    - name: Authenticate GitHub CLI
+      env:
+        GH_TOKEN: ${{ secrets.PAT }}
+      run: gh auth setup-git
+
+    - name: Update GitHub secret using GH CLI
+      env:
+        NEW_REFRESH_TOKEN: ${{ env.NEW_REFRESH_TOKEN }}
+        REPO: ${{ github.repository }}
+      run: |
+        echo "::add-mask::$NEW_REFRESH_TOKEN"
+        echo "$NEW_REFRESH_TOKEN" | gh secret set REFRESH_TOKEN --repo "$REPO" --app actions

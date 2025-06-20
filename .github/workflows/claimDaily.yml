@@ -25,6 +25,15 @@ jobs:
 
     - name: Run Python script
       env:
-        TOKEN: ${{ secrets.TOKEN }}
+        REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
       run: |
         python app.py
+
+    - name: Update refresh token secret
+      uses: punitkashyup/action-secrets-update@v1.0.6
+      with:
+        repository_owner: ${{ github.repository_owner }}
+        repository_name: ${{ github.event.repository.name }}
+        secret_name: REFRESH_TOKEN
+        new_secret_value: ${{ env.NEW_REFRESH_TOKEN }}
+        github_token: ${{ secrets.PAT }}

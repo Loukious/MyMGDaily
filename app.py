@@ -6,6 +6,22 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+REFRESH_TOKEN = os.getenv('REFRESH_TOKEN')
+
+def get_access_token():
+    url = "https://backend.mymg.tn/auth/refresh"
+    headers = {
+        "user-agent": "okhttp/4.12.0"
+    }
+    data = {
+        "refresh_token": REFRESH_TOKEN
+    }
+
+    response = requests.post(url, headers=headers, json=data).json()
+    with open(os.environ["GITHUB_ENV"], "a") as f:
+        f.write(f"NEW_REFRESH_TOKEN={response["refresh_token"]}\n")
+    return response["access_token"]
+
 def make_request_with_retries(url, headers, method="GET", data=None, max_retries=3, delay=5):
     """
     Makes an HTTP request with retries in case of failure.
@@ -44,7 +60,7 @@ def get_games():
     url = "https://backend.mymg.tn/items/game_level"
     headers = {
         "User-Agent": "okhttp/4.12.0",
-        "authorization": "Bearer " + os.environ.get("TOKEN"),
+        "authorization": bearer,
     }
     return make_request_with_retries(url, headers)
 
@@ -52,7 +68,7 @@ def claim_reward(level_index, game_id):
     url = "https://backend.mymg.tn/v2/game/winner-for-game-level"
     headers = {
         "User-Agent": "okhttp/4.12.0",
-        "authorization": "Bearer " + os.environ.get("TOKEN"),
+        "authorization": bearer,
         "Content-Type": "application/json"
     }
     payload = {
@@ -65,7 +81,7 @@ def reveal_box():
     url = "https://backend.mymg.tn/v2/game/reveal-box"
     headers = {
         "User-Agent": "okhttp/4.12.0",
-        "authorization": "Bearer " + os.environ.get("TOKEN"),
+        "authorization": bearer,
         "Content-Type": "application/json"
     }
     r = requests.post(url, headers=headers).json()
@@ -75,7 +91,7 @@ def do_wheel():
     url = "https://backend.mymg.tn/v2/game/winner-for-wheel-item"
     headers = {
         "User-Agent": "okhttp/4.12.0",
-        "authorization": "Bearer " + os.environ.get("TOKEN"),
+        "authorization": bearer,
         "Content-Type": "application/json"
     }
     data = {
@@ -106,4 +122,5 @@ def main():
 
 # Run the main function
 if __name__ == "__main__":
+    bearer = f"Bearer {get_access_token()}"
     main()
